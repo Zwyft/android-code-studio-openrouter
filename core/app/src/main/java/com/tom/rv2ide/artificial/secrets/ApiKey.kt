@@ -73,12 +73,26 @@ object ApiKey {
     fun getGrokApiKey(): String {
         return prefManager.getString("ai_agent_grok_api_key", "")
     }
-    
+
     fun hasGrokKey(): Boolean {
         val key = getGrokApiKey()
         return key.isNotBlank() && key.length > 20
     }
-    
+
+    // OpenRouter API Key
+    fun getOpenRouterApiKey(): String {
+        return prefManager.getString("ai_agent_openrouter_api_key", "")
+    }
+
+    fun hasOpenRouterKey(): Boolean {
+        val key = getOpenRouterApiKey()
+        return key.isNotBlank() && key.length > 20
+    }
+
+    fun isOpenRouterWebSearchEnabled(): Boolean {
+        return prefManager.getBoolean("openrouter_web_search_enabled", false)
+    }
+
     // Legacy methods for backward compatibility
     @Deprecated("Use getGeminiApiKey() instead", ReplaceWith("getGeminiApiKey()"))
     fun getApiKey(): String {
@@ -93,9 +107,10 @@ object ApiKey {
         if (hasDeepseekKey()) providers.add("Deepseek")
         if (hasAnthropicKey()) providers.add("Anthropic")
         if (hasGrokKey()) providers.add("Grok")
+        if (hasOpenRouterKey()) providers.add("OpenRouter")
         return providers
     }
-    
+
     // Get all API keys as a map
     fun getAllApiKeys(): Map<String, String> {
         return mapOf(
@@ -103,13 +118,14 @@ object ApiKey {
             "openai" to getOpenAIApiKey(),
             "deepseek" to getDeepseekApiKey(),
             "anthropic" to getAnthropicApiKey(),
-            "grok" to getGrokApiKey()
+            "grok" to getGrokApiKey(),
+            "openrouter" to getOpenRouterApiKey()
         ).filterValues { it.isNotBlank() }
     }
-    
+
     // Check if any API key is configured
     fun hasAnyApiKey(): Boolean {
-        return hasGeminiKey() || hasOpenAIKey() || hasDeepseekKey() || 
-               hasAnthropicKey() || hasGrokKey()
+        return hasGeminiKey() || hasOpenAIKey() || hasDeepseekKey() ||
+               hasAnthropicKey() || hasGrokKey() || hasOpenRouterKey()
     }
 }

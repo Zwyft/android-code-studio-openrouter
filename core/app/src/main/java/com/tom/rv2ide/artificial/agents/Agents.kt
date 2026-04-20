@@ -143,8 +143,34 @@ class Agents(ctx: Context) {
   private val localllm_models = arrayOf(
     "local-model"
   )
-  
-  val ai_agents = openai_models + claude_models + gemini_models + deepseek_models + grok_models + localllm_models
+
+  // OpenRouter models — paid tier first, then free tier
+  private val openrouter_models = arrayOf(
+    // --- Paid Models ---
+    "anthropic/claude-opus-4-5",
+    "anthropic/claude-sonnet-4-5",
+    "anthropic/claude-haiku-3-5",
+    "openai/gpt-4o",
+    "openai/gpt-4o-mini",
+    "openai/o3-mini",
+    "google/gemini-2.5-pro",
+    "google/gemini-2.5-flash",
+    "mistralai/mistral-large",
+    "meta-llama/llama-3.3-70b-instruct",
+    "deepseek/deepseek-r1",
+    "x-ai/grok-3",
+    "x-ai/grok-3-mini",
+    // --- Free Tier ---
+    "google/gemini-2.0-flash-exp:free",
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "deepseek/deepseek-r1:free",
+    "mistralai/mistral-7b-instruct:free",
+    "qwen/qwen-2.5-72b-instruct:free",
+    "microsoft/phi-4:free",
+    "nousresearch/hermes-3-llama-3.1-405b:free"
+  )
+
+  val ai_agents = openai_models + claude_models + gemini_models + deepseek_models + grok_models + localllm_models + openrouter_models
   
   fun getModelsForProvider(providerId: String): Array<String> {
     return when(providerId) {
@@ -154,6 +180,7 @@ class Agents(ctx: Context) {
       "deepseek" -> deepseek_models
       "grok" -> grok_models
       "localllm" -> localllm_models
+      "openrouter" -> openrouter_models
       else -> gemini_models
     }
   }
@@ -166,6 +193,9 @@ class Agents(ctx: Context) {
       modelName in deepseek_models -> "deepseek"
       modelName in grok_models -> "grok"
       modelName in localllm_models -> "localllm"
+      modelName in openrouter_models -> "openrouter"
+      // Any model with provider/name format not matched above is treated as OpenRouter
+      modelName.contains("/") -> "openrouter"
       else -> null
     }
   }
@@ -177,9 +207,11 @@ class Agents(ctx: Context) {
           name in claude_models -> "claude"
           name in deepseek_models -> "deepseek"
           name in grok_models -> "grok"
+          name in openrouter_models -> "openrouter"
+          name.contains("/") -> "openrouter"
           else -> sp.getString(PROVIDER_KEY, "gemini") ?: "gemini"
       }
-      
+
       sp.edit().putString(PROVIDER_KEY, provider).apply()
       sp.edit().putString(AGENT_KEY, name).apply()
   }
@@ -194,6 +226,7 @@ class Agents(ctx: Context) {
       "claude" -> "claude-sonnet-4-20250514"
       "deepseek" -> "deepseek-chat"
       "grok" -> "grok-beta"
+      "openrouter" -> "google/gemini-2.0-flash-exp:free"
       else -> "gemini-2.5-pro"
     }
   }
