@@ -51,27 +51,31 @@ jobs:
           key: ${{ runner.os }}-gradle-v2-${{ hashFiles('**/*.gradle*') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      - name: Create local.properties
+      - name: Create signing key and local.properties
         run: |
+          keytool -genkeypair -v \
+            -keystore signing/signing-key.jks \
+            -storetype JKS \
+            -alias AndroidCS \
+            -storepass android123 \
+            -keypass android123 \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android, OU=Android, O=Android, L=Mountain View, S=California, C=US"
           echo "signing.storeFile=signing/signing-key.jks" >> local.properties
-          echo "signing.storePassword=123456" >> local.properties  
-          echo "signing.keyAlias=android-ide" >> local.properties
-          echo "signing.keyPassword=123456" >> local.properties
-      - name: Debug signing setup
-        run: |
-          echo "=== Repository structure ==="
-          find . -name "*.jks" -o -name "local.properties" | head -10
-          echo ""
-          echo "=== local.properties content ==="
-          cat local.properties || echo "local.properties not found"
-          echo ""
-          echo "=== SigningDirectory ==="
-          ls -la core/app/signing/ || echo "core/app/signing directory not found"
+          echo "signing.storePassword=android123" >> local.properties
+          echo "signing.keyAlias=AndroidCS" >> local.properties
+          echo "signing.keyPassword=android123" >> local.properties
       - name: Assemble Debug APK
+        env:
+          SIGNING_STORE_PASSWORD: android123
+          SIGNING_KEY_PASSWORD: android123
         run: ./gradlew :core:app:assembleDebug
         # run: ./gradlew :core:app:assembleRelease
       - name: List APK files (debug)
-        run: ls -la core/app/build/outputs/apk/debug/
+        run: find core/app/build/outputs/apk/debug/ -name "*.apk" 2>/dev/null || echo "No APKs found"
+        if: always()
       - name: Upload arm64-v8a Release APK
         uses: actions/upload-artifact@v4
         with:
