@@ -86,6 +86,12 @@
   <!-- AI Agent grok -->
   <string name="ai_agent_grok_api_key">Grok API Key</string>
 
+  <!-- AI Agent OpenRouter -->
+  <string name="ai_agent_openrouter_api_key">OpenRouter API Key</string>
+  <string name="ai_agent_openrouter_api_key_summary">Enter your OpenRouter API key to access 400+ models</string>
+  <string name="ai_agent_openrouter_web_search">OpenRouter Web Search</string>
+  <string name="ai_agent_openrouter_web_search_summary">Append :online suffix to enable web-augmented responses (paid models only)</string>
+
   <string name="no_acs_title">ACS Components Missing</string>
   <string name="no_acs_summary">This application appears to be incomplete or unofficial, as it is missing the required ACS build system. For full functionality, please install the official Android Code Studio from a trusted source.</string>
 

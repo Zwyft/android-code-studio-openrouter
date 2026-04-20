@@ -51,6 +51,8 @@ private class AIAgentConfig(
   @IgnoredOnParcel private var openAIApiKeyPref: OpenAIApiKey? = null
   @IgnoredOnParcel private var anthropicApiKeyPref: AnthropicApiKey? = null
   @IgnoredOnParcel private var grokApiKeyPref: GrokApiKey? = null
+  @IgnoredOnParcel private var openRouterApiKeyPref: OpenRouterApiKey? = null
+  @IgnoredOnParcel private var openRouterWebSearchPref: OpenRouterWebSearch? = null
 
   init {
     val aiAgentEnabled = AIAgentEnabled { isEnabled -> updateApiKeyPreferencesState(isEnabled) }
@@ -60,6 +62,8 @@ private class AIAgentConfig(
     openAIApiKeyPref = OpenAIApiKey()
     anthropicApiKeyPref = AnthropicApiKey()
     grokApiKeyPref = GrokApiKey()
+    openRouterApiKeyPref = OpenRouterApiKey()
+    openRouterWebSearchPref = OpenRouterWebSearch()
 
     addPreference(aiAgentEnabled)
     addPreference(geminiApiKeyPref!!)
@@ -67,6 +71,8 @@ private class AIAgentConfig(
     addPreference(openAIApiKeyPref!!)
     addPreference(anthropicApiKeyPref!!)
     addPreference(grokApiKeyPref!!)
+    addPreference(openRouterApiKeyPref!!)
+    addPreference(openRouterWebSearchPref!!)
   }
 
   private fun updateApiKeyPreferencesState(isEnabled: Boolean) {
@@ -75,6 +81,8 @@ private class AIAgentConfig(
     openAIApiKeyPref?.setEnabled(isEnabled)
     anthropicApiKeyPref?.setEnabled(isEnabled)
     grokApiKeyPref?.setEnabled(isEnabled)
+    openRouterApiKeyPref?.setEnabled(isEnabled)
+    openRouterWebSearchPref?.setEnabled(isEnabled)
   }
 }
 
@@ -370,5 +378,86 @@ private class AnthropicApiKey(
   private fun getSummaryText(): String {
     val apiKey = prefManager.getString("ai_agent_anthropic_api_key", "")
     return if (apiKey.isBlank()) "Click to set API key" else "API Key: ${apiKey.take(8)}..."
+  }
+}
+
+@Parcelize
+private class OpenRouterApiKey(
+    override val key: String = "ai_agent_openrouter_api_key",
+    override val title: Int = R.string.ai_agent_openrouter_api_key,
+) : BasePreference() {
+
+  @IgnoredOnParcel private var preference: Preference? = null
+
+  override fun onCreatePreference(context: Context): Preference {
+    preference =
+        androidx.preference.Preference(context).apply {
+          key = "ai_agent_openrouter_api_key"
+          title = context.getString(R.string.ai_agent_openrouter_api_key)
+          summary = getSummaryText()
+          isEnabled = prefManager.getBoolean("ai_agent_enabled", false)
+        }
+    return preference!!
+  }
+
+  override fun onPreferenceClick(preference: Preference): Boolean {
+    val context = preference.context
+
+    val editText = android.widget.EditText(context)
+    editText.setText(prefManager.getString("ai_agent_openrouter_api_key", ""))
+    editText.hint = "sk-or-v1-..."
+
+    val dialog =
+        com.google.android.material.dialog
+            .MaterialAlertDialogBuilder(context)
+            .setTitle("OpenRouter API Key")
+            .setMessage("Enter your OpenRouter API key (sk-or-v1-...)")
+            .setView(editText)
+            .setPositiveButton("Save") { _, _ ->
+              val apiKey = editText.text.toString().trim()
+              prefManager.putString("ai_agent_openrouter_api_key", apiKey)
+              preference.summary = getSummaryText()
+            }
+            .setNegativeButton("Cancel", null)
+            .create()
+
+    dialog.show()
+    return true
+  }
+
+  fun setEnabled(enabled: Boolean) {
+    preference?.isEnabled = enabled
+  }
+
+  private fun getSummaryText(): String {
+    val apiKey = prefManager.getString("ai_agent_openrouter_api_key", "")
+    return if (apiKey.isBlank()) "Click to set API key" else "API Key: ${apiKey.take(8)}..."
+  }
+}
+
+@Parcelize
+private class OpenRouterWebSearch(
+    override val key: String = "openrouter_web_search_enabled",
+    override val title: Int = R.string.ai_agent_openrouter_web_search,
+) : SwitchPreference(
+    setValue = { enabled ->
+        prefManager.putBoolean("openrouter_web_search_enabled", enabled)
+    },
+    getValue = { prefManager.getBoolean("openrouter_web_search_enabled", false) }
+) {
+
+  @IgnoredOnParcel private var preference: Preference? = null
+
+  override fun onCreatePreference(context: Context): Preference {
+    return super.onCreatePreference(context).apply {
+      key = "openrouter_web_search_enabled"
+      title = context.getString(R.string.ai_agent_openrouter_web_search)
+      summary = context.getString(R.string.ai_agent_openrouter_web_search_summary)
+      isEnabled = prefManager.getBoolean("ai_agent_enabled", false)
+    }.also { preference = it }
+  }
+
+  fun setEnabled(enabled: Boolean) {
+    preference?.isEnabled = enabled
   }
 }

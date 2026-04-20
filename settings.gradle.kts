@@ -74,6 +74,7 @@ dependencyResolutionManagement {
     maven { url = uri("https://repo.gradle.org/gradle/libs-releases") }
     maven { url = uri("https://www.jetbrains.com/intellij-repository/releases") }
   }
+
 }
 
 gradle.rootProject {
