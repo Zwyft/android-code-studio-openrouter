@@ -25,20 +25,19 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
   id("build-logic.root-project")
-  alias(libs.plugins.android.application) apply false
-  alias(libs.plugins.android.library) apply false
-  alias(libs.plugins.kotlin.android) apply false
-  alias(libs.plugins.kotlin.jvm) apply false
-  alias(libs.plugins.protobuf) apply false
-  alias(libs.plugins.benchmark) apply false
+  id("com.android.application") version "8.13.0" apply false
+  id("com.android.library") version "8.13.0" apply false
+  id("org.jetbrains.kotlin.android") version "2.1.0" apply false
+  id("org.jetbrains.kotlin.jvm") version "2.1.0" apply false
+  id("com.google.protobuf") version "0.9.4" apply false
+  id("androidx.benchmark") version "1.2.4" apply false
   id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10" apply false
-  
 }
 
 buildscript {
   dependencies {
-    classpath(libs.kotlin.gradle.plugin)
-    classpath(libs.nav.safe.args.gradle.plugin)
+    classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0")
+    classpath("androidx.navigation:navigation-safe-args-gradle-plugin:2.7.7")
   }
 }
 

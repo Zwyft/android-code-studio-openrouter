@@ -75,11 +75,6 @@ dependencyResolutionManagement {
     maven { url = uri("https://www.jetbrains.com/intellij-repository/releases") }
   }
 
-  versionCatalogs {
-    create("libs") {
-      from(files("gradle/libs.versions.toml"))
-    }
-  }
 }
 
 gradle.rootProject {
